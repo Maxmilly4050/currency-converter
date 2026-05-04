@@ -1,11 +1,14 @@
-function App() {
+import Header from './components/header';
+import CurrencyConverter from './components/converter';
+import './output.css';
+
+export default function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-          <h1 className='text-3xl font-bold underline text-center text-white'>Currency Converter</h1>
-      </header>
+    <div className="App ">
+      <Header />
+      <main className='flex items-center justify-center h-screen'>
+        <CurrencyConverter />
+      </main>
     </div>
   );
 }
-
-export default App;
