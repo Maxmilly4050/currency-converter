@@ -1,6 +1,6 @@
 export default function CurrencyConverter() {
   return (
-    <div className="flex justify-center p-8">
+    <div className="flex justify-center p-8 bg-gray-100">
       <div className="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-xl border border-gray-100">
 
         {/* Input row */}
@@ -79,12 +79,6 @@ export default function CurrencyConverter() {
             <p className="mt-1 text-sm text-gray-400">Mid-market rate · 19:48 UTC</p>
           </div>
           <div className="flex gap-2">
-            <button className="h-10 rounded-lg border border-gray-200 bg-gray-50 px-5 text-sm font-medium text-gray-700 hover:bg-gray-100 transition">
-              Track rates
-            </button>
-            <button className="h-10 rounded-lg bg-blue-600 px-5 text-sm font-medium text-white hover:bg-blue-500 transition">
-              Send money
-            </button>
           </div>
         </div>
 
