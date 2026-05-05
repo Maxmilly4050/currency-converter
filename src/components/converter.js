@@ -21,19 +21,64 @@ async function currencySymbols (){
   }
 }
 
+async function convertCurrency(from, to, amount) {
+  const url = `https://currency-conversion-and-exchange-rates.p.rapidapi.com/convert?from=${from}&to=${to}&amount=${amount}`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'x-rapidapi-key': '4df89369a1msh896ceb0bc9301f4p1c673ajsn0c8416e8657d',
+      'x-rapidapi-host': 'currency-conversion-and-exchange-rates.p.rapidapi.com',
+      'Content-Type': 'application/json'
+    }
+  };
 
-
-
+  try {
+    const response = await fetch(url, options);
+    const result = await response.json();
+    console.log(result);
+    return result;
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 function CurrencyConverter() {
-  const [symbols, setSymbols] = useState({});
+  const [loadData, setLoadData] = useState(true);
+  const [symbols, setSymbols] = useState([]);
+  const [fromCurrency, setFromCurrency] = useState('USD');
+  const [toCurrency, setToCurrency] = useState('EUR');
+  const [amount, setAmount] = useState('');
+  const [convertedAmount, setConvertedAmount] = useState('0.854803');
+  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     currencySymbols().then((data) => {
-      setSymbols(data);
+      if (data) {
+        setSymbols(Object.keys(data));
+        console.log('symbols', symbols);
+        setLoadData(false);
+      } else {
+        console.error('Failed to fetch symbols:', data);
+      }
     });
-  }, []);
+  }, [loadData]);
 
+  useEffect(() => {
+    if (amount) {
+      convertCurrency(fromCurrency, toCurrency, amount).then((data) => {
+        setConvertedAmount(data.result);
+      });
+    }
+  }, [amount, fromCurrency, toCurrency]);
+
+  function getEnteredAmount(e) {
+    const value = e.target.value;
+    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+      setAmount(value); 
+      console.log('amount', value);
+    }
+  }
+  
 
   return (
     <div className="flex justify-center p-8 bg-gray-100">
@@ -50,18 +95,29 @@ function CurrencyConverter() {
                 <span className="text-xl font-medium text-gray-400">$</span>
                 <input
                   type="text"
-                  defaultValue="1.00"
                   aria-label="From amount"
                   className="w-full border-none bg-transparent text-2xl font-medium text-gray-900 outline-none"
+                  // onChange={convertCurrency(fromCurrency, toCurrency, amount)}
+                  onInput={getEnteredAmount}
+                  value={amount}
                 />
               </div>
-              <button className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-100 transition">
-                <span className="text-lg">🇺🇸</span>
-                <span>USD</span>
+              {showDropdown ? <select className="bg-transparent border-none outline-none flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-100 transition" 
+                                      value={fromCurrency}
+                                      onChange={(e) => setFromCurrency(e.target.value)}>
+                  {symbols.map((code) => (
+                    <option key={code} value={code}>
+                      {code} 
+                    </option>
+                  ))}
+                </select> :
+              <button className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-100 transition" onClick={() => setShowDropdown(!showDropdown)}>
+                <span>{fromCurrency}</span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 256 256">
                   <path d="M216.49,104.49l-80,80a12,12,0,0,1-17,0l-80-80a12,12,0,0,1,17-17L128,159l71.51-71.52a12,12,0,0,1,17,17Z" />
                 </svg>
-              </button>
+              </button>}
+
             </div>
           </fieldset>
 
@@ -85,19 +141,27 @@ function CurrencyConverter() {
                 <span className="text-xl font-medium text-gray-400">€</span>
                 <input
                   type="text"
-                  defaultValue="0.854803"
+                  value={convertedAmount}
                   readOnly
                   aria-label="Converted amount"
                   className="w-full border-none bg-transparent text-2xl font-medium text-gray-900 outline-none"
                 />
               </div>
-              <button className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-100 transition">
-                <span className="text-lg">🇪🇺</span>
-                <span>EUR</span>
+              {showDropdown ? <select className="bg-transparent border-none outline-none flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-100 transition" 
+                                      value={toCurrency}
+                                      onChange={(e) => setToCurrency(e.target.value)}>
+                  {symbols.map((code) => (
+                    <option key={code} value={code}>
+                      {code} 
+                    </option>
+                  ))}
+                </select> :
+              <button className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-100 transition" onClick={() => setShowDropdown(!showDropdown)}>
+                <span>{toCurrency}</span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 256 256">
                   <path d="M216.49,104.49l-80,80a12,12,0,0,1-17,0l-80-80a12,12,0,0,1,17-17L128,159l71.51-71.52a12,12,0,0,1,17,17Z" />
                 </svg>
-              </button>
+              </button>}
             </div>
           </fieldset>
         </div>
