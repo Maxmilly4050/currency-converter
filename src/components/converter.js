@@ -1,4 +1,40 @@
-export default function CurrencyConverter() {
+import { useState, useEffect, use } from 'react';
+
+async function currencySymbols (){
+  const url = 'https://currency-conversion-and-exchange-rates.p.rapidapi.com/symbols';
+  const options = {
+    method: 'GET',
+    headers: {
+      'x-rapidapi-key': '4df89369a1msh896ceb0bc9301f4p1c673ajsn0c8416e8657d',
+      'x-rapidapi-host': 'currency-conversion-and-exchange-rates.p.rapidapi.com',
+      'Content-Type': 'application/json'
+    }
+  };
+
+  try {
+    const response = await fetch(url, options);
+    const result = await response.text();
+    const data = JSON.parse(result).symbols;
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+
+
+
+
+function CurrencyConverter() {
+  const [symbols, setSymbols] = useState({});
+
+  useEffect(() => {
+    currencySymbols().then((data) => {
+      setSymbols(data);
+    });
+  }, []);
+
+
   return (
     <div className="flex justify-center p-8 bg-gray-100">
       <div className="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-xl border border-gray-100">
@@ -86,3 +122,5 @@ export default function CurrencyConverter() {
     </div>
   );
 }
+
+export default CurrencyConverter;
