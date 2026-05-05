@@ -1,5 +1,10 @@
 import { useState, useEffect, use } from 'react';
 
+let formatter = new Intl.NumberFormat('en-US', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
 async function currencySymbols (){
   const url = 'https://currency-conversion-and-exchange-rates.p.rapidapi.com/symbols';
   const options = {
@@ -48,15 +53,18 @@ function CurrencyConverter() {
   const [fromCurrency, setFromCurrency] = useState('USD');
   const [toCurrency, setToCurrency] = useState('EUR');
   const [amount, setAmount] = useState('');
-  const [convertedAmount, setConvertedAmount] = useState('0.854803');
+  const [convertedAmount, setConvertedAmount] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
+  const [rate, setRate] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   useEffect(() => {
     currencySymbols().then((data) => {
       if (data) {
         setSymbols(Object.keys(data));
         console.log('symbols', symbols);
-        setLoadData(false);
+        setLoadData(false); 
+        console.log('amount', amount);
       } else {
         console.error('Failed to fetch symbols:', data);
       }
@@ -66,7 +74,17 @@ function CurrencyConverter() {
   useEffect(() => {
     if (amount) {
       convertCurrency(fromCurrency, toCurrency, amount).then((data) => {
-        setConvertedAmount(data.result);
+        setConvertedAmount(formatter.format(data.result));
+        setRate(data.info.rate);
+        setFromCurrency(data.query.from);
+        setToCurrency(data.query.to);
+
+        const timestamp = data.info.timestamp;
+        const date = new Date(timestamp * 1000);
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+
+        setLastUpdated(`${hours}:${minutes}`);
       });
     }
   }, [amount, fromCurrency, toCurrency]);
@@ -78,6 +96,7 @@ function CurrencyConverter() {
       console.log('amount', value);
     }
   }
+
   
 
   return (
@@ -92,7 +111,7 @@ function CurrencyConverter() {
             <legend className="px-1 text-xs text-gray-500">From</legend>
             <div className="flex h-14 items-center gap-3">
               <div className="flex flex-1 items-center gap-1 overflow-hidden">
-                <span className="text-xl font-medium text-gray-400">$</span>
+                {/* <span className="text-xl font-medium text-gray-400">$</span> */}
                 <input
                   type="text"
                   aria-label="From amount"
@@ -138,7 +157,7 @@ function CurrencyConverter() {
             <legend className="px-1 text-xs text-gray-500">To</legend>
             <div className="flex h-14 items-center gap-3">
               <div className="flex flex-1 items-center gap-1 overflow-hidden">
-                <span className="text-xl font-medium text-gray-400">€</span>
+                {/* <span className="text-xl font-medium text-gray-400">€</span> */}
                 <input
                   type="text"
                   value={convertedAmount}
@@ -173,10 +192,10 @@ function CurrencyConverter() {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-xl font-medium text-gray-900">
-              1.00 USD = <span>0.8548</span>
-              <span className="text-gray-400 text-base">03</span> EUR
+              {amount===null? '' : '1.00'} {fromCurrency} = <span>{rate}</span>
+              <span className="text-gray-400 text-base"></span> {toCurrency}
             </p>
-            <p className="mt-1 text-sm text-gray-400">Mid-market rate · 19:48 UTC</p>
+            <p className="mt-1 text-sm text-gray-400">Mid-market rate · {lastUpdated} UTC</p>
           </div>
           <div className="flex gap-2">
           </div>
