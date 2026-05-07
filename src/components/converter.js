@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import dotenv from 'dotenv';
+dotenv.config();
 
 let formatter = new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 2,
@@ -10,7 +12,7 @@ async function currencySymbols (){
   const options = {
     method: 'GET',
     headers: {
-      'x-rapidapi-key': '4df89369a1msh896ceb0bc9301f4p1c673ajsn0c8416e8657d',
+      'x-rapidapi-key': process.env.X_RAPID_API_KEY,
       'x-rapidapi-host': 'currency-conversion-and-exchange-rates.p.rapidapi.com',
       'Content-Type': 'application/json'
     }
@@ -31,7 +33,7 @@ async function convertCurrency(from, to, amount) {
   const options = {
     method: 'GET',
     headers: {
-      'x-rapidapi-key': '4df89369a1msh896ceb0bc9301f4p1c673ajsn0c8416e8657d',
+      'x-rapidapi-key': process.env.X_RAPID_API_KEY,
       'x-rapidapi-host': 'currency-conversion-and-exchange-rates.p.rapidapi.com',
       'Content-Type': 'application/json'
     }
