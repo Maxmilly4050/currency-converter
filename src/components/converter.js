@@ -1,4 +1,4 @@
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 let formatter = new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 2,
@@ -58,13 +58,14 @@ function CurrencyConverter() {
   const [rate, setRate] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
 
+  const debounceTimer = useRef(null);
+
+
   useEffect(() => {
     currencySymbols().then((data) => {
       if (data) {
         setSymbols(Object.keys(data));
-        console.log('symbols', symbols);
         setLoadData(false); 
-        console.log('amount', amount);
       } else {
         console.error('Failed to fetch symbols:', data);
       }
@@ -72,7 +73,9 @@ function CurrencyConverter() {
   }, [loadData]);
 
   useEffect(() => {
-    if (amount) {
+    if (!amount) return;
+    clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => {
       convertCurrency(fromCurrency, toCurrency, amount).then((data) => {
         setConvertedAmount(formatter.format(data.result));
         setRate(data.info.rate);
@@ -86,7 +89,10 @@ function CurrencyConverter() {
 
         setLastUpdated(`${hours}:${minutes}`);
       });
-    }
+    }, 500);
+
+    return () => clearTimeout(debounceTimer.current);
+    
   }, [amount, fromCurrency, toCurrency]);
 
   function getEnteredAmount(e) {
